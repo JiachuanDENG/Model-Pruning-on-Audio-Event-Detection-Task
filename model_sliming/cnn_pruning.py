@@ -5,7 +5,7 @@ import configparser
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from torchvision import datasets, transforms
+# from torchvision import datasets, transforms
 from fat2019_dataset  import FATDataset
 import model4prune
 import pickle as pkl
@@ -98,12 +98,12 @@ def get_newmodel(model,class_num,cfg,cfg_mask):
 
 
 if __name__ == '__main__':
-    if torch.cuda.is_available():
-        print ('use cuda ...')
-        device = 'cuda'
-    else:
-        print ('use cpu...')
-        device = 'cpu'
+    # if torch.cuda.is_available():
+    #     print ('use cuda ...')
+    #     device = 'cuda'
+    # else:
+    #     print ('use cpu...')
+    device = 'cpu'
 
     config=configparser.ConfigParser()
     config.read('./config.ini')
