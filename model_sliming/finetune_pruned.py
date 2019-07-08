@@ -47,7 +47,7 @@ if not os.path.exists(checkpoint_dir):
 
 
 
-def finetune(traindatadir, valdatadir, traindatacsv,valdatacsv,device,model_path,cfg_path,save_model_filename,loadmodel=False):
+def finetune(traindatadir, valdatadir, traindatacsv,valdatacsv,device,model_path,cfg_path,save_model_filename,frorm_scratch=True):
     EPOCH = 100
     printout_steps = 50
     eval_steps = 200
@@ -66,7 +66,7 @@ def finetune(traindatadir, valdatadir, traindatacsv,valdatacsv,device,model_path
     cfg = pkl.load(open(cfg_path,'rb'))
     cnnmodel = model4prune.CNNModelBasic(voiceDataset.get_class_num(),cfg).to(device)
     print (cnnmodel)
-    if loadmodel:
+    if not frorm_scratch:
         print ('loading model from {}...'.format(model_path))
         cnnmodel.load_state_dict(torch.load(model_path))
     optimizer=torch.optim.Adam(cnnmodel.parameters(),lr)
@@ -155,10 +155,10 @@ if __name__ == '__main__':
     model_path = os.path.join(config.get('DataPath','checkpoint_dir'),config.get('SaveModel','pruned_model'))
     cfg_path = os.path.join(config.get('DataPath','checkpoint_dir'),config.get('SaveModel','pruned_cfg'))
     save_model_filename = config.get('SaveModel','finetuned_prunedmodel')
-    loadmodel = False
+    frorm_scratch = config.get('Parameters','frorm_scratch').lower() == 'true'
 
 
     val_datapath = config.get('DataPath','val_data_path')
     val_csv_path = config.get('DataPath','val_csv_path')
 
-    finetune(datapath,val_datapath,csvpath,val_csv_path,device,model_path,cfg_path,save_model_filename,loadmodel)
+    finetune(datapath,val_datapath,csvpath,val_csv_path,device,model_path,cfg_path,save_model_filename,frorm_scratch)
