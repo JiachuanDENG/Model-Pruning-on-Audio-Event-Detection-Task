@@ -64,7 +64,10 @@ def finetune(traindatadir, valdatadir, traindatacsv,valdatacsv,device,model_path
     # cnnmodel = models.CNNModelv2(voiceDataset.get_class_num()).to(device)
     print ('cfg_path',cfg_path)
     cfg = pkl.load(open(cfg_path,'rb'))
-    cnnmodel = model4prune.CNNModelBasic(voiceDataset.get_class_num(),cfg).to(device)
+    if config.get('Parameters','model_arch').lower() == 'basic':
+        cnnmodel = model4prune.CNNModelBasic(voiceDataset.get_class_num(),cfg).to(device)
+    elif config.get('Parameters','model_arch').lower() == 'poolrevised':
+        cnnmodel = model4prune.CNNModelPoolingRevised(voiceDataset.get_class_num(),cfg).to(device)
     print (cnnmodel)
     if not frorm_scratch:
         print ('loading model from {}...'.format(model_path))

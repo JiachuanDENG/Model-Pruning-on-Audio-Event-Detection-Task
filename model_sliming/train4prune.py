@@ -62,7 +62,10 @@ def train(traindatadir, valdatadir, traindatacsv,valdatacsv,device,save_model_fi
     print ('create model ... ')
 
     # cnnmodel = models.CNNModelv2(voiceDataset.get_class_num()).to(device)
-    cnnmodel = model4prune.CNNModelBasic(voiceDataset.get_class_num()).to(device)
+    if config.get('Parameters','model_arch').lower() == 'basic':
+        cnnmodel = model4prune.CNNModelBasic(voiceDataset.get_class_num()).to(device)
+    elif config.get('Parameters','model_arch').lower() == 'poolrevised':
+        cnnmodel = model4prune.CNNModelPoolingRevised(voiceDataset.get_class_num()).to(device)
     # cnnmodel.load_state_dict(torch.load('./checkpoint/initmodel.model'))
     print (cnnmodel)
     def updateBN():

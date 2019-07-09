@@ -57,6 +57,10 @@ def test(traindatadir, testdatadir, traindatacsv,testdatacsv,device,model_path='
 
     # cnnmodel = models.CNNModelv2(voiceDataset.get_class_num()).to(device)
     cnnmodel = model4prune.CNNModelBasic(voiceDataset.get_class_num()).to(device)
+    if config.get('Parameters','model_arch').lower() == 'basic':
+        cnnmodel = model4prune.CNNModelBasic(voiceDataset.get_class_num()).to(device)
+    elif config.get('Parameters','model_arch').lower() == 'poolrevised':
+        cnnmodel = model4prune.CNNModelPoolingRevised(voiceDataset.get_class_num()).to(device)
     #loading trained model
     print ('loading model from {}...'.format(model_path))
     cnnmodel.load_state_dict(torch.load(model_path))

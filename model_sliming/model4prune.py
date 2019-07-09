@@ -76,6 +76,66 @@ class CNNModelBasic(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        #[M, 128, duration, 3]
+        x = self.conv(x)
+        # print (x.shape) # [x,512,8,8]
+        x = torch.mean(x, dim=3)
+        x, _ = torch.max(x, dim=2)
+        x = self.fc(x)
+        return x
+
+
+
+class CNNModelPoolingRevised(nn.Module):
+    """
+    CNN basic without dropout
+    replace averagepooling  by one axis using max pooling and the other axis using average pooling.(max pooling in time axes + ave pooling in mel axes.)
+    """
+    def __init__(self, num_classes,cfg=[64,64,'A',128,128,'A',256,256,'A',512,512,'A']):
+        super(CNNModelPoolingRevised,self).__init__()
+
+        # self.conv = nn.Sequential(
+        #     ConvBlock(in_channels=3, out_channels=64),
+        #     ConvBlock(in_channels=64,out_channels=64),
+        #     nn.AvgPool2d(2),
+        #     ConvBlock(in_channels=64, out_channels=128),
+        #     ConvBlock(in_channels=128, out_channels=128),
+        #     nn.AvgPool2d(2),
+        #     ConvBlock(in_channels=128, out_channels=256),
+        #     ConvBlock(in_channels=256, out_channels=256),
+        #     nn.AvgPool2d(2),
+        #     ConvBlock(in_channels=256, out_channels=512),
+        #     ConvBlock(in_channels=512, out_channels=512),
+        #     nn.AvgPool2d(2)
+        # )
+
+        self.conv = self.make_layers(cfg)
+
+
+        self.fc = nn.Sequential(
+
+            nn.Linear(cfg[-2], 128),
+            nn.PReLU(),
+            nn.BatchNorm1d(128),
+
+            nn.Linear(128, num_classes),
+        )
+
+
+    def make_layers(self,cfg):
+        in_channels = 3
+        layers = []
+        for v in cfg:
+            if v == 'A':
+                layers += [nn.AvgPool2d((2,1))]
+                layers += [nn.MaxPool2d((1,2))]
+            else:
+                layers += [ConvBlock(in_channels=in_channels,out_channels=v)]
+                in_channels = v
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        #[M, 128, duration, 3]
         x = self.conv(x)
         # print (x.shape) # [x,512,8,8]
         x = torch.mean(x, dim=3)

@@ -10,8 +10,15 @@ from fat2019_dataset  import FATDataset
 import model4prune
 import pickle as pkl
 
+config=configparser.ConfigParser()
+config.read('./config.ini')
+
+
 def prune_convWeights(model_path,class_num,percent):
-    model = model4prune.CNNModelBasic(class_num)
+    if config.get('Parameters','model_arch').lower() == 'basic':
+        model = model4prune.CNNModelBasic(class_num)
+    elif config.get('Parameters','model_arch').lower() == 'poolrevised':
+        model = model4prune.CNNModelPoolingRevised(class_num)
     print ('loading model from {}...'.format(model_path))
     model.load_state_dict(torch.load(model_path))
     # print (model)
@@ -56,7 +63,11 @@ def prune_convWeights(model_path,class_num,percent):
     return model, cfg, cfg_mask
 
 def get_newmodel(model,class_num,cfg,cfg_mask):
-    newmodel = model4prune.CNNModelBasic(class_num,cfg)
+
+    if config.get('Parameters','model_arch').lower() == 'basic':
+        newmodel = model4prune.CNNModelBasic(class_num,cfg)
+    elif config.get('Parameters','model_arch').lower() == 'poolrevised':
+        newmodel = model4prune.CNNModelPoolingRevised(class_num,cfg)
     # print (newmodel)
     mask_idx = 0
     start_mask = torch.ones(3)
@@ -105,8 +116,6 @@ if __name__ == '__main__':
     #     print ('use cpu...')
     device = 'cpu'
 
-    config=configparser.ConfigParser()
-    config.read('./config.ini')
 
     traindatadir = config.get('DataPath','train_data_path')
     valdatadir = config.get('DataPath','val_data_path')
